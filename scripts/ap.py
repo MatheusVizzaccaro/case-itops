@@ -13,8 +13,8 @@ data = {
     'Bytes_Sent/Recv': bytes_sent_recv,
     'Active_conn': active_conn,
     'Cpu_usage': cpu_usage,
-    'Ram_usage': ram_usage
+    'Ram_usage': ram_usage.percent
 }
 
-with open('data.json', 'w') as file:
+with open('ap.json', 'w') as file:
     json.dump(data, file, indent=2)

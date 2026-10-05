@@ -1,0 +1,17 @@
+{
+  "active_sessions": 8,
+  "dropped_packets": 0,
+  "top_blocked_ip": "77.2.242.111",
+  "cpu_usage": 7.7,
+  "ram_usage": 86.1,
+  "bytes_sent_recv": [
+    94346424,
+    993379037,
+    194782,
+    811032,
+    0,
+    0,
+    0,
+    0
+  ]
+}
