@@ -1,6 +1,7 @@
 import psutil
 import random
 import json
+import datetime
 
 def generate_ipv4():
     ip = ""
@@ -21,5 +22,7 @@ data = {
     'bytes_sent_recv': psutil.net_io_counters()
 }
 
-with open('firewall.json', 'w') as file:
+date = datetime.datetime.now().strftime('%y-%m-%d-%H-%M')
+
+with open(f'{date}_firewall01.json', 'w') as file:
     json.dump(data, file, indent=2)

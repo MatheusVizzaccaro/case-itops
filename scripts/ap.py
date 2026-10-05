@@ -1,6 +1,7 @@
 import psutil
 import random
 import json
+import datetime
 
 id_antena = random.randint(0,10)
 bytes_sent_recv = psutil.net_io_counters()
@@ -16,5 +17,7 @@ data = {
     'Ram_usage': ram_usage.percent
 }
 
-with open('ap.json', 'w') as file:
+date = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M')
+
+with open(f'{date}_ap01.json', 'w') as file:
     json.dump(data, file, indent=2)
