@@ -6,7 +6,7 @@ import csv
 jsons = sorted(os.listdir("bronze-data/"))
 
 data = {
-    "data_registro": [],
+    "date": [],
 
     #Dados da antena:
     "ap_id": [],
@@ -77,20 +77,20 @@ for file in jsons:
             status_message = ""
 
             if data["active_conn"][-1] > 40:
-                status_message += "Alta Densidade "
+                status_message += "Alta Densidade | "
 
             if data["ap_cpu_usage"][-1] > 80:
-                status_message += "Gargalo de processamento "
+                status_message += "Gargalo de processamento | "
 
             if data["ap_ram_usage"][-1] > 75:
-                status_message += "OOM (Out Of Memory)"
+                status_message += "OOM (Out Of Memory) | "
 
             if status_message == "":
                 status_message = "Normal"
 
-            data["status"].append(status_message.strip())
+            data["status"].append(status_message.strip(" |"))
 
-    if(file.__contains__("firewall")):
+    if(file.__contains__("firewall") and file > checkpoint["firewall_last_file"]):
         with open(f"bronze-data/{file}") as j:
             content = json.load(j)
 
@@ -109,7 +109,7 @@ dif_ant_sent = checkpoint["ap_sent"] - ant_sent
 dif_ant_recv = checkpoint["ap_recv"] - ant_recv
 
 date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-data["data_registro"].append(date)
+data["date"].append(date)
 
 
 mbps_sent = dif_ant_sent * 8 / 60 / 1000000
@@ -118,20 +118,20 @@ mbps_recv = dif_ant_recv * 8 / 60 / 1000000
 data["mbps_sent"].append(mbps_sent)
 data["mbps_recv"].append(mbps_recv)
 
-csv_novo = not os.path.exists("analise.csv")
+csvNotExists = not os.path.exists("analise.csv")
 with open('analise.csv', 'a', newline='') as csvfile:
     csv_writer = csv.writer(csvfile)
 
-    if csv_novo:
+    if csvNotExists:
         csv_writer.writerow(list(data.keys()))
 
-    linha = []
+    row = []
     for coluna in data.values():
         if len(coluna) > 0:
-            linha.append(coluna[-1])
+            row.append(coluna[-1])
         else:
-            linha.append("")   # coluna sem dado nesta execução
-    csv_writer.writerow(linha)
+            row.append("")
+    csv_writer.writerow(row)
 
-with open("checkpoint.json", 'w') as newJson:
+with open("checkpoint.json", 'w') as newJson: 
     json.dump(checkpoint, newJson, indent=2)
