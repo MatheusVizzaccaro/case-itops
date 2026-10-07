@@ -1,3 +1,4 @@
 bronze-data/*.json
 *.csv
 checkpoint.json
+.env
