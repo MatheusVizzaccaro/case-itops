@@ -1,1 +1,2 @@
-*.json
+bronze-data/*.json
+*.csv

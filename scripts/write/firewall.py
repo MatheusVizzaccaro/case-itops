@@ -19,10 +19,11 @@ data = {
     'top_blocked_ip': generate_ipv4(),
     'cpu_usage': psutil.cpu_percent(),
     'ram_usage': psutil.virtual_memory().percent,
-    'bytes_sent_recv': psutil.net_io_counters()
+    'bytes_sent': psutil.net_io_counters().bytes_sent,
+    'bytes_recv': psutil.net_io_counters().bytes_recv
 }
 
 date = datetime.datetime.now().strftime('%y-%m-%d-%H-%M')
 
-with open(f'{date}_firewall01.json', 'w') as file:
+with open(f'bronze-data/{date}_firewall01.json', 'w') as file:
     json.dump(data, file, indent=2)
