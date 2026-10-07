@@ -27,7 +27,8 @@ data = {
 
     #Dados calculados (silver):
     "mbps_sent": [],
-    "mbps_recv": []
+    "mbps_recv": [],
+    "status": []
 }
 
 checkpoint = {}
@@ -40,7 +41,9 @@ else:
         "ap_last_file": "",
         "firewall_last_file": "",
         "ap_sent": 0,
-        "ap_recv": 0
+        "ap_recv": 0,
+        "sum_sent": 0,
+        "sum_recv": 0
     }
 
     with open('checkpoint.json', 'w') as file:
@@ -50,20 +53,6 @@ ant_sent = checkpoint["ap_sent"]
 ant_recv = checkpoint["ap_recv"]
 
 for file in jsons:
-    if(file.__contains__("firewall")):
-        with open(f"bronze-data/{file}") as j:
-            content = json.load(j)
-
-            checkpoint["firewall_last_file"] = file
-
-            data["active_sessions"].append(content["active_sessions"])
-            data["dropped_packets"].append(content["dropped_packets"])
-            data["top_blocked_ip"].append(content["top_blocked_ip"])
-            data["firewall_cpu_usage"].append(content["cpu_usage"])
-            data["firewall_ram_usage"].append(content["ram_usage"])
-            data["firewall_bytes_sent"].append(content["bytes_sent"])
-            data["firewall_bytes_recv"].append(content["bytes_recv"])
-            
     if(file.__contains__("ap") and file > checkpoint["ap_last_file"]):
         with open(f"bronze-data/{file}") as j:
             content = json.load(j)
@@ -75,6 +64,8 @@ for file in jsons:
             checkpoint["ap_last_file"] = file
             checkpoint["ap_sent"] = content["bytes_sent"]
             checkpoint["ap_recv"] = content["bytes_recv"]
+            checkpoint["sum_sent"] += content["bytes_sent"]
+            checkpoint["sum_recv"] += content["bytes_recv"]
 
             data["ap_id"].append(content["id_antena"])
             data["ap_bytes_sent"].append(content["bytes_sent"])
@@ -82,6 +73,37 @@ for file in jsons:
             data["active_conn"].append(content["active_conn"])
             data["ap_cpu_usage"].append(content["cpu_usage"])
             data["ap_ram_usage"].append(content["ram_usage"])
+
+            status_message = ""
+
+            if data["active_conn"][-1] > 40:
+                status_message += "Alta Densidade "
+
+            if data["ap_cpu_usage"][-1] > 80:
+                status_message += "Gargalo de processamento "
+
+            if data["ap_ram_usage"][-1] > 75:
+                status_message += "OOM (Out Of Memory)"
+
+            if status_message == "":
+                status_message = "Normal"
+
+            data["status"].append(status_message.strip())
+
+    if(file.__contains__("firewall")):
+        with open(f"bronze-data/{file}") as j:
+            content = json.load(j)
+
+            checkpoint["firewall_last_file"] = file
+
+            data["active_sessions"].append(content["active_sessions"])
+            data["dropped_packets"].append(content["dropped_packets"])
+            data["top_blocked_ip"].append(content["top_blocked_ip"])
+            data["firewall_cpu_usage"].append(content["cpu_usage"])
+            data["firewall_ram_usage"].append(content["ram_usage"])
+
+data["firewall_bytes_sent"].append(checkpoint["sum_sent"])
+data["firewall_bytes_recv"].append(checkpoint["sum_recv"])
 
 dif_ant_sent = checkpoint["ap_sent"] - ant_sent
 dif_ant_recv = checkpoint["ap_recv"] - ant_recv
@@ -113,5 +135,3 @@ with open('analise.csv', 'a', newline='') as csvfile:
 
 with open("checkpoint.json", 'w') as newJson:
     json.dump(checkpoint, newJson, indent=2)
-
-#todo: fazer coluna status e firewall bytes recv e sent ser a soma das antenas.

@@ -18,9 +18,7 @@ data = {
     'dropped_packets': psutil.net_io_counters().dropin,
     'top_blocked_ip': generate_ipv4(),
     'cpu_usage': psutil.cpu_percent(),
-    'ram_usage': psutil.virtual_memory().percent,
-    'bytes_sent': psutil.net_io_counters().bytes_sent,
-    'bytes_recv': psutil.net_io_counters().bytes_recv
+    'ram_usage': psutil.virtual_memory().percent
 }
 
 date = datetime.datetime.now().strftime('%y-%m-%d-%H-%M')

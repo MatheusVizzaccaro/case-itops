@@ -8,7 +8,7 @@ with open('analise.csv', 'r') as csvfile:
     ratios = []
 
     for row in reader:
-        row_sent.append({"date": row[0], "mbps_sent": float(row[-2])})
+        row_sent.append({"date": row[0], "mbps_sent": float(row[-3])})
         row_cpu.append({"date": row[0], "cpu_percent": float(row[5])})
 
     i = 0
