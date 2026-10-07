@@ -71,9 +71,9 @@ for file in jsons:
             checkpoint["ap_sent"] = content["bytes_sent"]
             checkpoint["ap_recv"] = content["bytes_recv"]
 
-            # if(ant_sent == 0 and ant_recv == 0):
-            #     ant_sent = content["bytes_sent"]
-            #     ant_recv = content["bytes_recv"]
+            if(ant_sent == 0 and ant_recv == 0):
+                ant_sent = content["bytes_sent"]
+                ant_recv = content["bytes_recv"]
 
             data["ap_id"].append(content["id_antena"])
             data["ap_bytes_sent"].append(content["bytes_sent"])
@@ -85,8 +85,9 @@ for file in jsons:
 dif_ant_sent = checkpoint["ap_sent"] - ant_sent
 dif_ant_recv = checkpoint["ap_recv"] - ant_recv
 
-date = datetime.datetime.now().strftime('%y-%m-%d %H:%M:%S')
+date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 data["data_registro"].append(date)
+
 
 mbps_sent = dif_ant_sent * 8 / 60 / 1000000
 mbps_recv = dif_ant_recv * 8 / 60 / 1000000
