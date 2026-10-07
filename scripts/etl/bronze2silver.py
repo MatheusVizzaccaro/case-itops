@@ -2,7 +2,7 @@ import os
 import json
 import csv
 
-jsons = os.listdir("bronze-data/")
+jsons = sorted(os.listdir("bronze-data/"))
 
 data = {
     #Dados da antena:
@@ -23,39 +23,78 @@ data = {
     "firewall_bytes_recv": []
 }
 
+ant_sent = 0
+ant_recv = 0
+checkpoint = {}
 
+if os.path.exists("checkpoint.json"):
+    with open("checkpoint.json", 'r') as chkpoimt:
+        checkpoint = json.load(chkpoimt)
+else:
+    checkpoint = {
+        "ap_last_file": "",
+        "firewall_last_file": "",
+        "ap_sent": 0,
+        "ap_recv": 0
+    }
 
+    with open('checkpoint.json', 'w') as file:
+        json.dump(checkpoint, file, indent=2)
 
 for file in jsons:
     if(file.__contains__("firewall")):
         with open(f"bronze-data/{file}") as j:
             content = json.load(j)
 
-            data["active_sessions"].append(content["active_sessions"])
-            data["dropped_packets"].append(content["dropped_packets"])
-            data["top_blocked_ip"].append(content["top_blocked_ip"])
-            data["firewall_cpu_usage"].append(content["cpu_usage"])
-            data["firewall_ram_usage"].append(content["ram_usage"])
-            data["firewall_bytes_sent"].append(content["bytes_sent"])
-            data["firewall_bytes_recv"].append(content["bytes_recv"])
+            checkpoint["firewall_last_file"] = file
+
+            # data["active_sessions"].append(content["active_sessions"])
+            # data["dropped_packets"].append(content["dropped_packets"])
+            # data["top_blocked_ip"].append(content["top_blocked_ip"])
+            # data["firewall_cpu_usage"].append(content["cpu_usage"])
+            # data["firewall_ram_usage"].append(content["ram_usage"])
+            # data["firewall_bytes_sent"].append(content["bytes_sent"])
+            # data["firewall_bytes_recv"].append(content["bytes_recv"])
             
-    if(file.__contains__("ap")):
+    if(file.__contains__("ap") and file > checkpoint["ap_last_file"]):
         with open(f"bronze-data/{file}") as j:
             content = json.load(j)
 
-            data["ap_id"].append(content["id_antena"])
-            data["ap_bytes_sent"].append(content["bytes_sent"])
-            data["ap_bytes_recv"].append(content["bytes_recv"])
-            data["active_conn"].append(content["active_conn"])
-            data["ap_cpu_usage"].append(content["cpu_usage"])
-            data["ap_ram_usage"].append(content["ram_usage"])
+            checkpoint["ap_last_file"] = file
+            checkpoint["ap_sent"] = content["bytes_sent"]
+            checkpoint["ap_recv"] = content["bytes_recv"]
 
-with open('analise.csv', 'w', newline='') as csvfile:
+            with open("checkpoint.json", 'w') as newJson:
+                json.dump(checkpoint, newJson, indent=2)
+
+            if(ant_sent == 0 and ant_recv == 0):
+                ant_sent = content["bytes_sent"]
+                ant_recv = content["bytes_recv"]
+
+            # data["ap_id"].append(content["id_antena"])
+            # data["ap_bytes_sent"].append(content["bytes_sent"])
+            # data["ap_bytes_recv"].append(content["bytes_recv"])
+            # data["active_conn"].append(content["active_conn"])
+            # data["ap_cpu_usage"].append(content["cpu_usage"])
+            # data["ap_ram_usage"].append(content["ram_usage"])
+
+dif_ant_sent = checkpoint["ap_sent"] - ant_sent
+dif_ant_recv = checkpoint["ap_recv"] - ant_recv
+
+mpbs_sent = dif_ant_sent * 8 / 60 / 1000000
+mpbs_recv = dif_ant_recv * 8 / 60 / 1000000
+
+with open('analise.csv', 'a', newline='') as csvfile:
     csv_writer = csv.writer(csvfile)
-    csv_writer.writerow(list(data.keys()))
+    csv_writer.writerow(["mbps_sent", "mbps_recv"])
+    csv_writer.writerow([mpbs_sent, mpbs_recv])
 
-    for i in range(len(data["ap_id"])):
-        linha = []
-        for coluna in data.values():
-            linha.append(coluna[i])
-        csv_writer.writerow(linha)
+    # for i in range(len(data["ap_id"])):
+    #     linha = []
+    #     for coluna in data.values():
+    #         linha.append(coluna[i])
+    #     csv_writer.writerow(linha)
+
+    
+
+

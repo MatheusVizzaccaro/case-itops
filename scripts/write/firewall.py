@@ -25,5 +25,5 @@ data = {
 
 date = datetime.datetime.now().strftime('%y-%m-%d-%H-%M')
 
-with open(f'bronze-data/{date}_firewall01.json', 'w') as file:
+with open(f'bronze-data/firewall01_{date}.json', 'w') as file:
     json.dump(data, file, indent=2)
