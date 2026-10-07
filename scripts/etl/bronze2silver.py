@@ -30,8 +30,6 @@ data = {
     "mbps_recv": []
 }
 
-ant_sent = 0
-ant_recv = 0
 checkpoint = {}
 
 if os.path.exists("checkpoint.json"):
@@ -47,6 +45,9 @@ else:
 
     with open('checkpoint.json', 'w') as file:
         json.dump(checkpoint, file, indent=2)
+
+ant_sent = checkpoint["ap_sent"]
+ant_recv = checkpoint["ap_recv"]
 
 for file in jsons:
     if(file.__contains__("firewall")):
@@ -67,13 +68,13 @@ for file in jsons:
         with open(f"bronze-data/{file}") as j:
             content = json.load(j)
 
-            checkpoint["ap_last_file"] = file
-            checkpoint["ap_sent"] = content["bytes_sent"]
-            checkpoint["ap_recv"] = content["bytes_recv"]
-
             if(ant_sent == 0 and ant_recv == 0):
                 ant_sent = content["bytes_sent"]
                 ant_recv = content["bytes_recv"]
+
+            checkpoint["ap_last_file"] = file
+            checkpoint["ap_sent"] = content["bytes_sent"]
+            checkpoint["ap_recv"] = content["bytes_recv"]
 
             data["ap_id"].append(content["id_antena"])
             data["ap_bytes_sent"].append(content["bytes_sent"])
@@ -112,3 +113,5 @@ with open('analise.csv', 'a', newline='') as csvfile:
 
 with open("checkpoint.json", 'w') as newJson:
     json.dump(checkpoint, newJson, indent=2)
+
+#todo: fazer coluna status e firewall bytes recv e sent ser a soma das antenas.
